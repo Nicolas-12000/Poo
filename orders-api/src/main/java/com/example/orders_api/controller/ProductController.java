@@ -2,6 +2,7 @@ package com.example.orders_api.controller;
 
 import com.example.orders_api.model.Product;
 import com.example.orders_api.repository.ProductRepository;
+import com.example.orders_api.service.ProductSearchService;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/products")
 public class ProductController {
 
+    private final ProductSearchService productSearchService;
     private final ProductRepository productRepository;
 
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductSearchService productSearchService,
+                             ProductRepository productRepository) {
+        this.productSearchService = productSearchService;
         this.productRepository = productRepository;
     }
 
     @GetMapping
     public List<Product> list() {
-        return productRepository.findAll();
+        return productSearchService.search(null, null, null);
     }
 
     @GetMapping("/search")
@@ -36,28 +40,7 @@ public class ProductController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice) {
-
-        boolean hasName = name != null && !name.isBlank();
-        boolean hasMin = minPrice != null;
-        boolean hasMax = maxPrice != null;
-
-        if (hasName && hasMin && hasMax) {
-            return productRepository.findByNameContainingIgnoreCaseAndPriceBetween(name, minPrice, maxPrice);
-        }
-        if (hasName && (hasMin || hasMax)) {
-            Double min = hasMin ? minPrice : Double.valueOf(0.0);
-            Double max = hasMax ? maxPrice : Double.valueOf(Double.MAX_VALUE);
-            return productRepository.findByNameContainingIgnoreCaseAndPriceBetween(name, min, max);
-        }
-        if (hasName) {
-            return productRepository.findByNameContainingIgnoreCase(name);
-        }
-        if (hasMin || hasMax) {
-            Double min = hasMin ? minPrice : Double.valueOf(0.0);
-            Double max = hasMax ? maxPrice : Double.valueOf(Double.MAX_VALUE);
-            return productRepository.findByPriceBetween(min, max);
-        }
-        return productRepository.findAll();
+        return productSearchService.search(name, minPrice, maxPrice);
     }
 
     @GetMapping("/{id}")

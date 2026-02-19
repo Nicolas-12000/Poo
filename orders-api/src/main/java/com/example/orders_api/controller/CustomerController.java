@@ -2,6 +2,7 @@ package com.example.orders_api.controller;
 
 import com.example.orders_api.model.Customer;
 import com.example.orders_api.repository.CustomerRepository;
+import com.example.orders_api.service.CustomerSearchService;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
+    private final CustomerSearchService customerSearchService;
     private final CustomerRepository customerRepository;
 
-    public CustomerController(CustomerRepository customerRepository) {
+    public CustomerController(CustomerSearchService customerSearchService,
+                              CustomerRepository customerRepository) {
+        this.customerSearchService = customerSearchService;
         this.customerRepository = customerRepository;
     }
 
     @GetMapping
+
     public List<Customer> list() {
-        return customerRepository.findAll();
+        return customerSearchService.search(null, null, null);
     }
 
     @GetMapping("/search")
@@ -36,24 +41,7 @@ public class CustomerController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String phone) {
-
-        boolean hasName = name != null && !name.isBlank();
-        boolean hasCity = city != null && !city.isBlank();
-        boolean hasPhone = phone != null && !phone.isBlank();
-
-        if (hasName && hasCity) {
-            return customerRepository.findByNameContainingIgnoreCaseAndAddressCityContainingIgnoreCase(name, city);
-        }
-        if (hasName) {
-            return customerRepository.findByNameContainingIgnoreCase(name);
-        }
-        if (hasCity) {
-            return customerRepository.findByAddressCityContainingIgnoreCase(city);
-        }
-        if (hasPhone) {
-            return customerRepository.findByPhoneContaining(phone);
-        }
-        return customerRepository.findAll();
+        return customerSearchService.search(name, city, phone);
     }
 
     @GetMapping("/{id}")

@@ -42,6 +42,11 @@ public class Order {
 
     private OffsetDateTime createdAt;
 
+    private Double subtotal = 0.0;
+    private Double discountPercent = 0.0; // percent, e.g. 10.0 means 10%
+    private Double taxPercent = 0.0; // percent
+    private Double total = 0.0;
+
     @PrePersist
     public void prePersist() {
         if (id == null) id = UUID.randomUUID();

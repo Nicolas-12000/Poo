@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final com.example.orders_api.service.OrderPricingService orderPricingService;
 
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, com.example.orders_api.service.OrderPricingService orderPricingService) {
         this.orderRepository = orderRepository;
+        this.orderPricingService = orderPricingService;
     }
 
     @Override
@@ -28,6 +30,8 @@ public class OrderServiceImpl implements OrderService {
                 it.setUnitPrice(it.getProduct().getPrice());
             }
         }
+        // compute totals (subtotal, discount, taxes, total) via pricing service
+        orderPricingService.applyPricing(order);
         return orderRepository.save(order);
     }
 
