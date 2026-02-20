@@ -13,8 +13,10 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class OrdersApiApplication {
 
 	public static void main(String[] args) {
@@ -35,8 +37,8 @@ public class OrdersApiApplication {
 							   MerchantRepository merchantRepository,
 							   CourierRepository courierRepository) {
 		return args -> {
-			Product p1 = new Product(null, "Pizza", 8.5);
-			Product p2 = new Product(null, "Soda", 1.5);
+			Product p1 = new Product(null, "Pizza", java.math.BigDecimal.valueOf(8.5));
+			Product p2 = new Product(null, "Soda", java.math.BigDecimal.valueOf(1.5));
 			productRepository.save(p1);
 			productRepository.save(p2);
 

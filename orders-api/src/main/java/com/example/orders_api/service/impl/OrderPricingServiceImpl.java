@@ -3,6 +3,8 @@ package com.example.orders_api.service.impl;
 import com.example.orders_api.model.Order;
 import com.example.orders_api.model.OrderItem;
 import com.example.orders_api.service.OrderPricingService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,20 +13,20 @@ public class OrderPricingServiceImpl implements OrderPricingService {
     @Override
     public void applyPricing(Order order) {
         if (order == null) return;
-        double sum = 0.0;
+        BigDecimal sum = BigDecimal.ZERO;
         if (order.getItems() != null) {
             for (OrderItem it : order.getItems()) {
-                if (it != null) sum += it.subtotal();
+                if (it != null) sum = sum.add(it.subtotal() == null ? BigDecimal.ZERO : it.subtotal());
             }
         }
         order.setSubtotal(sum);
 
-        double discountPercent = order.getDiscountPercent() == null ? 0.0 : order.getDiscountPercent();
-        double taxPercent = order.getTaxPercent() == null ? 0.0 : order.getTaxPercent();
+        BigDecimal discountPercent = order.getDiscountPercent() == null ? BigDecimal.ZERO : order.getDiscountPercent();
+        BigDecimal taxPercent = order.getTaxPercent() == null ? BigDecimal.ZERO : order.getTaxPercent();
 
-        double discountAmount = sum * discountPercent / 100.0;
-        double taxed = (sum - discountAmount) * taxPercent / 100.0;
-        double total = sum - discountAmount + taxed;
+        BigDecimal discountAmount = sum.multiply(discountPercent).divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
+        BigDecimal taxed = (sum.subtract(discountAmount)).multiply(taxPercent).divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
+        BigDecimal total = sum.subtract(discountAmount).add(taxed).setScale(2, RoundingMode.HALF_UP);
         order.setTotal(total);
     }
 }

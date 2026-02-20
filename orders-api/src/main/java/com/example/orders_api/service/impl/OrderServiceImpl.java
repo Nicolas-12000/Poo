@@ -26,7 +26,7 @@ public class OrderServiceImpl implements OrderService {
     public Order create(Order order) {
         // ensure unitPrice is set from product price if missing
         for (OrderItem it : order.getItems()) {
-            if (it.getUnitPrice() == 0 && it.getProduct() != null) {
+            if ((it.getUnitPrice() == null || it.getUnitPrice().compareTo(java.math.BigDecimal.ZERO) == 0) && it.getProduct() != null) {
                 it.setUnitPrice(it.getProduct().getPrice());
             }
         }

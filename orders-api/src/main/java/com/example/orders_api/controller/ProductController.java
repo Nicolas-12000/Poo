@@ -38,8 +38,8 @@ public class ProductController {
     @GetMapping("/search")
     public List<Product> search(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice) {
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice) {
         return productSearchService.search(name, minPrice, maxPrice);
     }
 
