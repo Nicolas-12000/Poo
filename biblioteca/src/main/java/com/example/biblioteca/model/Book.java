@@ -21,4 +21,7 @@ public class Book {
 
     @Builder.Default
     private Boolean available = true;
+    
+    @Version
+    private Long version;
 }
